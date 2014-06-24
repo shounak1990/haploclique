@@ -153,6 +153,10 @@ bool SortedBamReader::hasNext() const {
 	return next_index + 1 < (int)read_list.size();
 }
 
+bool SortedBamReader::isSingleEnd() const {
+	return read_list[next_index].single_end;
+}
+
 const std::string& SortedBamReader::getReadName() const {
 	return read_list[next_index].alignments1[0]->Name;
 }

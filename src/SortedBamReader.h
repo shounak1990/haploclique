@@ -109,6 +109,8 @@ public:
 	/** Same as getAlignmentsSecond, but transfers pointer ownerships. */
 	virtual std::auto_ptr<std::vector<BamTools::BamAlignment*> >  releaseAlignmentsSecond();
 
+	virtual bool isSingleEnd() const;
+	
 	virtual bool isUnmapped() const;
 	virtual bool isFirstUnmapped() const;
 	virtual bool isSecondUnmapped() const;
