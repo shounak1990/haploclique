@@ -26,10 +26,8 @@ add_executable ( seeksingletons
 add_executable ( bam-to-alignment-priors
 	bam-to-alignment-priors.cpp
 	HistogramBasedDistribution.cpp
-	ASTagCalculator.cpp
 	Histogram.cpp
 	SortedBamReader.cpp
-	GroupWiseBamReader.cpp
 	BamHelper.cpp
 	ShortDnaSequence.cpp
 	VariationIndex.cpp

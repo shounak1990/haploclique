@@ -76,7 +76,7 @@ TIME=10000
 INDELS=""
 LASER=0
 BLASR=0
-while getopts “ah:r:q:o:pt:c:s:euz:Gwng:j:i:lx:m:PLbHk:” OPTION
+while getopts “ah:r:q:o:pt:c:s:euz:Gwng:j:i:lx:m:PLbHk:D” OPTION
 do
      case $OPTION in
          h)
