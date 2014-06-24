@@ -23,20 +23,6 @@ add_executable ( seeksingletons
 	seeksingletons.cpp
 )
 
-add_executable ( bam-to-alignment-priors
-	bam-to-alignment-priors.cpp
-	HistogramBasedDistribution.cpp
-	Histogram.cpp
-	SortedBamReader.cpp
-	BamHelper.cpp
-	ShortDnaSequence.cpp
-	VariationIndex.cpp
-	PositionSet.cpp
-	IndelLengthDistribution.cpp
-	Variation.cpp
-	NamedDnaSequence.cpp
-)
-
 add_executable (haploclique
 	haploclique.cpp
 	CliqueFinder.cpp
@@ -64,13 +50,15 @@ add_executable (haploclique
 	PositionSet.cpp
 	Variation.cpp
 	NamedDnaSequence.cpp
+	Histogram.cpp
+	SortedBamReader.cpp
+	BamParser.cpp
 )
 
-target_link_libraries(bam-to-alignment-priors ${Boost_LIBRARIES} BamTools ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(haploclique ${Boost_LIBRARIES} BamTools)
 target_link_libraries(alignmentparser ${Boost_LIBRARIES})
 target_link_libraries(seeksingletons ${Boost_LIBRARIES})
 
-set(ALL_EXE_TARGETS seeksingletons alignmentparser bam-to-alignment-priors haploclique)
+set(ALL_EXE_TARGETS seeksingletons alignmentparser haploclique)
 
 install(TARGETS ${ALL_EXE_TARGETS} RUNTIME DESTINATION bin)

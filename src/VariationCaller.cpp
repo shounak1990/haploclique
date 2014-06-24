@@ -22,7 +22,7 @@
 #include "VariationCaller.h"
 
 using namespace std;
-
+//TODO Check if reads are softclipped
 VariationCaller::VariationCaller(double insert_length_popmean, const ReadSetSignificanceTester& significance_tester) : insert_length_popmean(insert_length_popmean), distributions(0), significance_tester(significance_tester), log_factorial_table(2,0.0) {
 }
 
