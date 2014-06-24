@@ -69,7 +69,6 @@ public:
 	virtual void enableProgressMessages(std::ostream& os, int frequency) = 0;
 
 	virtual long long getSkippedDuplicates() const = 0;
-	virtual long long getNonPairedCount() const = 0;
 
 	virtual const BamTools::RefVector& getReferenceData() const = 0;
 
