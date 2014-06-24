@@ -313,7 +313,7 @@ int main(int argc, char* argv[]) {
 
 	try {
 		cerr << "Estimating internal segment size distribution" << endl;
-		bam_reader = auto_ptr<BamReader>(new SortedBamReader(bam_input_filename, true, max_span, false));
+		bam_reader = auto_ptr<BamReader>(new SortedBamReader(bam_input_filename));
 		const BamTools::RefVector& bam_ref_data = bam_reader->getReferenceData();
 		Histogram histogram;
 		int i = 0;
@@ -395,9 +395,6 @@ int main(int argc, char* argv[]) {
 	}
 	if (bam_reader->getSkippedDuplicates() > 0) {
 		cerr << "Skipped " << bam_reader->getSkippedDuplicates() << " duplicate alignments." << endl;
-	}
-	if (bam_reader->getNonPairedCount() > 0) {
-		cerr << "Skipped " << bam_reader->getNonPairedCount() << " reads with no matching mate alignment." << endl;
 	}
 	if (skipped_inside_clipping > 0) {
 		cerr << "Skipped " << skipped_inside_clipping << " reads with alignments soft-clipped on the inside of an alignment pair!" << endl;
