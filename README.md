@@ -1,6 +1,8 @@
-### Attention: This is an academic proof of concept implementation.
 <h1 align="center">
 <img src="https://github.com/armintoepfer/haploclique/blob/master/haploclique_logo.png?raw=true" alt="HaploClique"/></h1>
+***
+<p align="center">Dr. Armin Töpfer, <a href="http://www.armintoepfer.com">armintoepfer.com</a></p>
+***
 We present a novel method to reconstruct the structure of a viral quasispecies from NGS data.
 Our approach can be used to:
  - reconstruct local error-corrected haplotypes and estimate their abundance
@@ -72,7 +74,12 @@ OPTIONS:
 ```
 
 #####Quasispecies assembly of long-range haplotypes 
-For quasispecies assembly, HaploClique has to be executed iteratively. Currently, this procedure cannot be automated to handle any input alignment. Please contact the author for further help.
+For quasispecies assembly, HaploClique has to be executed iteratively. Currently, this procedure cannot be automated to handle any input alignment. Manual assembly can be performed by calling the same command until number of haplotypes has converged:
+```bash
+haploclique-assembly -r ../reference.fasta -i ../alignment.bam
+haploclique-assembly -r ../reference.fasta -i ../alignment.bam
+haploclique-assembly -r ../reference.fasta -i ../alignment.bam
+```
 
 #####Structural variation
 For the prediction of large insertion and deletions, please only use alignments in which *all reads are paired-end* and they are *not allowed to overlap*:  
@@ -85,12 +92,12 @@ The detected indels are saved as indels.vcf.
 </p>
 
 ### Contributions
- [Armin Töpfer](http://www.bsse.ethz.ch/cbg/people/armintoepfer)  
+ [Armin Töpfer](http://www.armintoepfer.com)  
  [Tobias Marschall](http://homepages.cwi.nl/~tm/)
  
 ###Contact
 ```
 Armin Töpfer
 armin.toepfer (at) gmail.com
-http://www.bsse.ethz.ch/cbg/people/armintoepfer
+http://www.armintoepfer.com
 ```
