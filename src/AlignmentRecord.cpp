@@ -102,7 +102,6 @@ std::pair<char,char> computeEntry(const char& base1, const char& qual1, const ch
     } else {
         result.first = base2;
         result.second = disagreement(qual2-33,qual1-33)+33;
-        //TO DO base1 or base2?
     }
     return result;
 }
@@ -707,8 +706,8 @@ size_t AlignmentRecord::internalSegmentIntersectionLength(const AlignmentRecord&
 }
 
 //Reads with overlapping paired ends have been merged by pairwith() before this method is called
-AlignmentRecord::covmap AlignmentRecord::coveredPositions() const{
-    covmap cov_positions;
+std::vector<AlignmentRecord::mapValue> AlignmentRecord::coveredPositions() const{
+    std::vector<AlignmentRecord::mapValue> cov_positions;
     //position in ref
     int r = this->start1;
     //position in querybases of read
@@ -718,7 +717,7 @@ AlignmentRecord::covmap AlignmentRecord::coveredPositions() const{
         switch(c){
             case 'M': {
                 c = this->sequence1[q];
-                cov_positions[r]={c,this->sequence1.qualityChar(q),phredProb(c),q,0};
+                cov_positions.push_back({r,c,this->sequence1.qualityChar(q),phredProb(c),q,0});
                 //char d = this->sequence1[q];
                 ++q;
                 ++r;
@@ -753,7 +752,7 @@ AlignmentRecord::covmap AlignmentRecord::coveredPositions() const{
                 switch(c){
                     case 'M': {
                         c = this->sequence2[q];
-                        cov_positions[r]={c,this->sequence2.qualityChar(q),phredProb(c),q,1};
+                        cov_positions.push_back({r,c,this->sequence2.qualityChar(q),phredProb(c),q,1});
                         ++q;
                         ++r;
                         break;
