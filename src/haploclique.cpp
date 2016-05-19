@@ -95,6 +95,9 @@ Options:
                                               <num> standard deviations.
                                               [default: 3.0]
   -L FILE, --log=FILE                      Write log to <file>.
+  -d --doc_haplotypes                      Use for Simulation Study with known
+                                           haplotypes to document which reads
+                                           contributed to which final cliques.
 )";
 
 void usage() {
@@ -124,7 +127,7 @@ bool read_mean_and_sd(const string& filename, double* mean, double* sd) {
     return true;
 }
 
-deque<AlignmentRecord*>* readBamFile(string filename, vector<string>& readNames) {
+deque<AlignmentRecord*>* readBamFile(string filename, vector<string>& readNames, unsigned int& maxPosition) {
     typedef std::unordered_map<std::string, AlignmentRecord*> name_map_t;
     name_map_t names_to_reads;
     deque<AlignmentRecord*>* reads = new deque<AlignmentRecord*>;
@@ -210,7 +213,10 @@ deque<AlignmentRecord*>* readBamFile(string filename, vector<string>& readNames)
     }
     cout << singleendcounter << " " << pairedendcounter << " " <<  counter << endl;
     */
-
+    maxPosition = (*std::max_element(std::begin(*reads), std::end(*reads),
+                              [](const AlignmentRecord* lhs,const AlignmentRecord* rhs){
+        return lhs->getIntervalEnd() < rhs->getIntervalEnd();
+    }))->getIntervalEnd();
 
 
     return reads;
@@ -254,6 +260,7 @@ int main(int argc, char* argv[]) {
     bool filter_singletons = args["--no_singletons"].asBool();
     string logfile = "";
     if (args["--log"]) logfile = args["--log"].asString();
+    bool doc_haplotypes = args["--doc_haplotypes"].asBool();
     // END PARAMETERS
 
     bool call_indels = indel_output_file.size() > 0;
@@ -264,6 +271,7 @@ int main(int argc, char* argv[]) {
 
     //read allel frequency distributions
     std::unordered_map<int, double> simpson_map;
+    unsigned int maxPosition2 = 0;
     //cerr << "PARSE PRIOR";
     cerr.flush();
     if (allel_frequencies_path.size() > 0) {
@@ -279,6 +287,7 @@ int main(int argc, char* argv[]) {
             if (insertion_words.size() > 1) {
             } else {
                 simpson_map[atoi(words[0].c_str())] = pow(atof(words[1].c_str()),2)+pow(atof(words[2].c_str()),2)+pow(atof(words[3].c_str()),2)+pow(atof(words[4].c_str()),2);
+                maxPosition2=atoi(words[0].c_str());
                 //cerr << simpson_map[atoi(words[0].c_str())] << endl;
             }
         }
@@ -288,10 +297,14 @@ int main(int argc, char* argv[]) {
 
 
     clock_t clock_start = clock();
+    vector<string> originalReadNames;
+    unsigned int maxPosition1;
+    deque<AlignmentRecord*>* reads = readBamFile(bamfile, originalReadNames,maxPosition1);
     EdgeCalculator* edge_calculator = nullptr;
     EdgeCalculator* indel_edge_calculator = nullptr;
     unique_ptr<vector<mean_and_stddev_t> > readgroup_params(nullptr);
-    edge_calculator = new NewEdgeCalculator(Q, edge_quasi_cutoff_cliques, overlap_cliques, frameshift_merge, simpson_map, edge_quasi_cutoff_single, overlap_single, edge_quasi_cutoff_mixed);
+    maxPosition1 = (maxPosition1>maxPosition2) ? maxPosition1 : maxPosition2;
+    edge_calculator = new NewEdgeCalculator(Q, edge_quasi_cutoff_cliques, overlap_cliques, frameshift_merge, simpson_map, edge_quasi_cutoff_single, overlap_single, edge_quasi_cutoff_mixed, maxPosition1);
     if (call_indels) {
         double insert_mean = -1.0;
         double insert_stddev = -1.0;
@@ -323,29 +336,41 @@ int main(int argc, char* argv[]) {
 
     ofstream* reads_ofstream = 0;
 
-    vector<string> originalReadNames;
-    deque<AlignmentRecord*>* reads = readBamFile(bamfile, originalReadNames);
+
 
     // Main loop
     int ct = 0;
     double stdev = 1.0;
-    auto filter_fn = [&](unique_ptr<AlignmentRecord>& read) {
-        return (ct == 1 and filter_singletons and read->getReadCount() <= 1) or (ct > 1 and significance != 0.0 and read->getProbability() < 1.0 / reads->size() - significance*stdev);
+    auto filter_fn = [&](unique_ptr<AlignmentRecord>& read, int size) {
+        //if (ct == 8){
+        //    cout << read->getName() << " " <<read->getProbability() << " " << 1.0 /(size) << " " << significance*stdev << endl;
+        //    bool t =  read->getProbability() < 1.0 /size - significance*stdev;
+        //    cout << t << endl;
+        //}
+        return (ct == 1 and filter_singletons and read->getReadCount() <= 1) or (ct > 1 and significance != 0.0 and read->getProbability() < 1.0 / size - significance*stdev);
     };
 
     while (ct != iterations) {
         clique_finder->initialize();
         //cout << "Clique_finder initialized " << ct << endl;
+        //if(ct >= 5 && reads->size()<100 ){
+        //if(ct== 5){
+        //    edge_calculator->setOverlapCliques(0.1);
+        //}
+        //if(ct==8){
+        //    int k = 0;
+        //}
         if (lw != nullptr) lw->initialize();
-
+        int size = reads->size();
         while(not reads->empty()) {
             assert(reads->front() != nullptr);
 
             unique_ptr<AlignmentRecord> al_ptr(reads->front());
-
+            //if(al_ptr->getName() == "Clique_1037"){
+            //    int k = 0;
+            //}
             reads->pop_front();
-
-            if (filter_fn(al_ptr)) continue;
+            if (filter_fn(al_ptr,size)) continue;
 
             clique_finder->addAlignment(al_ptr);
             //cout << "addAlignment " << ct << endl;
@@ -360,7 +385,7 @@ int main(int argc, char* argv[]) {
         if (lw != nullptr) lw->finish();
 
         stdev = setProbabilities(*reads);
-
+        //if(ct == 5) break;
         if (clique_finder->hasConverged()) break;
         cout << ct++ << ": " << reads->size() << endl;
     }
@@ -377,11 +402,16 @@ int main(int argc, char* argv[]) {
     }
     ofstream os(outfile, std::ofstream::out);
     setProbabilities(*reads);
-    printReads(os, *reads);
+    printReads(os, *reads, doc_haplotypes);
 
     cout << "final: " << reads->size() << endl;
 
     for (auto&& r : *reads) {
+    //    if(r->getName() == "Clique_3370"){
+    //        for (auto& i : r->getReadNames()){
+    //            cout << i << endl;
+    //       }
+    //    }
         delete r;
     }
 
