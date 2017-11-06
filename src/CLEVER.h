@@ -38,6 +38,7 @@ private:
     typedef std::pair<unsigned int,size_t> length_and_index_t;
     std::set<length_and_index_t> alignments_by_length;
     void reorganize_storage();
+    std::map<string,int>* appearanceMap;
 public:
     CLEVER(const EdgeCalculator& edge_calculator, CliqueCollector& clique_collector, LogWriter* lw);
     virtual ~CLEVER();
@@ -48,9 +49,9 @@ public:
     }
    
     void finish();
-    void initialize();
+    void initialize(std::map<string, int> *appearanceMap);
 
-    void addAlignment(std::unique_ptr<AlignmentRecord>& ap, int& edgecounter);
+    void addAlignment(std::unique_ptr<AlignmentRecord>& ap, int& edgecounter,int& nonEdgeCounter,int numGCAllowedPos, int ct);
 };
 
 #endif /* CLEVER_H_ */

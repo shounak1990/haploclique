@@ -18,7 +18,8 @@
 cmake_minimum_required (VERSION 2.6) 
 project (STRUCTVAR)
 SET(CMAKE_C_COMPILER "/usr/bin/gcc-4.9")
-
+set(BOOST_ROOT "/home/shounak/.local/bin/boost_1_65_1/")
+set(BOOST_LIBRARYDIR "/home/shounak/.local/bin/boost_1_65_1/lib/")
 list(APPEND CMAKE_MODULE_PATH .) 
 
 IF(NOT CMAKE_BUILD_TYPE)
@@ -35,9 +36,9 @@ IF(${STATIC_LINKING} MATCHES "1")
     SET(Boost_USE_STATIC_LIBS ON)
 ENDIF()
 
-find_package(Boost 1.36 COMPONENTS program_options iostreams unit_test_framework REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(Threads REQUIRED)
+find_package(Boost 1.65.1 COMPONENTS program_options iostreams unit_test_framework)
+#find_package(ZLIB REQUIRED)
+#find_package(Threads REQUIRED)
 
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)

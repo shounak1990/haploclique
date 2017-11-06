@@ -15,13 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with HaploClique.  If not, see <http://www.gnu.org/licenses/>.
 
-add_executable (haploclique
+add_executable (chromaclique
 	haploclique.cpp
 	CLEVER.cpp
         BronKerbosch.cpp
 	Clique.cpp
 	QuasispeciesEdgeCalculator.cpp
         NewEdgeCalculator.cpp
+        NoMeEdgeCalculator.cpp
+        hmm.cpp
 	GaussianEdgeCalculator.cpp
 	AnyDistributionEdgeCalculator.cpp
 	AlignmentRecord.cpp
@@ -35,12 +37,33 @@ add_executable (haploclique
     docopt/docopt.cpp
 )
 
+add_executable (GCSwitchfinder
+        GCSwitchfinder.cpp
+)
+add_executable (bamCleaner
+        bamCleaner.cpp
+)
+add_executable (bamChecker
+        bamChecker.cpp
+)
+add_executable (coverageClipper
+        CoverageClipper.cpp
+)
+
 IF(${STATIC_LINKING} MATCHES "1")
-	target_link_libraries(haploclique ${Boost_LIBRARIES} BamTools-static)
+        target_link_libraries(chromaclique ${Boost_LIBRARIES} BamTools-static)
+        target_link_libraries(GCSwitchfinder ${Boost_LIBRARIES} BamTools-static)
+        target_link_libraries(bamCleaner ${Boost_LIBRARIES} BamTools-static)
+        target_link_libraries(bamChecker ${Boost_LIBRARIES} BamTools-static)
+        target_link_libraries(coverageClipper ${Boost_LIBRARIES} BamTools)
 ELSE()
-    target_link_libraries(haploclique ${Boost_LIBRARIES} BamTools)
+    target_link_libraries(chromaclique ${Boost_LIBRARIES} BamTools)
+    target_link_libraries(GCSwitchfinder ${Boost_LIBRARIES} BamTools)
+    target_link_libraries(bamCleaner ${Boost_LIBRARIES} BamTools)
+    target_link_libraries(bamChecker ${Boost_LIBRARIES} BamTools)
+    target_link_libraries(coverageClipper ${Boost_LIBRARIES} BamTools)
 ENDIF()
 
-set(ALL_EXE_TARGETS haploclique)
+set(ALL_EXE_TARGETS chromaclique)
 
 install(TARGETS ${ALL_EXE_TARGETS} RUNTIME DESTINATION bin)

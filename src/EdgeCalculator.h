@@ -26,7 +26,7 @@ public:
 	virtual ~EdgeCalculator() {}
 	
 	/** Decides whether an edge is to be drawn between the two given nodes. */
-	virtual bool edgeBetween(const AlignmentRecord& ap1, const AlignmentRecord& ap2) const = 0;
+    virtual bool edgeBetween(const AlignmentRecord& ap1, const AlignmentRecord& ap2,int numGCAllowedPos, int ct) const = 0;
 
 	/** Compute a length range. An alignment pair with a length outside this range is
 	 *  guaranteed not to have an edge to the given pair ap. */

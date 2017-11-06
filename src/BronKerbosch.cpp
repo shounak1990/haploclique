@@ -26,9 +26,9 @@ BronKerbosch::~BronKerbosch() {
     delete vertices_;
 }
 
-void BronKerbosch::initialize() {
+void BronKerbosch::initialize(std::map<string, int> *appearanceMap) {
     assert(not initialized);
-
+    this->appearanceMap = appearanceMap;
     cliques = new clique_list_t();
     for (auto&& alignment : alignments_) {
         delete alignment;
@@ -69,7 +69,7 @@ void BronKerbosch::finish() {
     }
 
     for (auto&& clique : *cliques) {
-        clique_collector.add(unique_ptr<Clique>(clique));
+        clique_collector.add(unique_ptr<Clique>(clique),this->appearanceMap);
     }
     delete cliques;
     cliques = nullptr;
@@ -250,7 +250,7 @@ void BronKerbosch::printEdges(std::string filename) {
     }
 }
 
-void BronKerbosch::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_autoptr, int& edgecounter) {
+void BronKerbosch::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_autoptr, int& edgecounter, int &nonEdgeCounter, int numGCAllowedPos, int ct) {
 	assert(alignment_autoptr.get() != nullptr);
 	assert(cliques!=nullptr);
     assert(initialized);
@@ -283,10 +283,10 @@ void BronKerbosch::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_auto
             continue;
         }
 
-        if(edge_calculator.edgeBetween(*alignment, *alignment2) ) {
+        if(edge_calculator.edgeBetween(*alignment, *alignment2,numGCAllowedPos,ct) ) {
 
             if(second_edge_calculator != nullptr) {
-                if(not second_edge_calculator->edgeBetween(*alignment, *alignment2) ) {
+                if(not second_edge_calculator->edgeBetween(*alignment, *alignment2,numGCAllowedPos,ct) ) {
                     continue;
                 }
             }

@@ -64,7 +64,7 @@ void GaussianEdgeCalculator::getPartnerLengthRange(const AlignmentRecord& ap, un
 	*max = ap.getInsertLength() + allowable_insert_size_diff;
 }
 
-bool GaussianEdgeCalculator::edgeBetween(const AlignmentRecord & ap1, const AlignmentRecord & ap2) const {
+bool GaussianEdgeCalculator::edgeBetween(const AlignmentRecord & ap1, const AlignmentRecord & ap2, int numGCAllowedPos, int ct) const {
 	if (ap1.isSingleEnd() || ap2.isSingleEnd()) {
 		throw runtime_error("Cannot process single-end reads in GaussianEdgeCalculator!");
 	}

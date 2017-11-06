@@ -39,7 +39,7 @@ CLEVER::~CLEVER() {
 	}
 }
 
-void CLEVER::initialize() {
+void CLEVER::initialize(std::map<string, int>* appearanceMap) {
     cliques = new clique_list_t();
     alignments = new AlignmentRecord*[capacity];
 
@@ -50,13 +50,14 @@ void CLEVER::initialize() {
 
     converged = true;
     initialized = true;
+    this->appearanceMap = appearanceMap;
 }
 
 void CLEVER::finish() {
     clique_list_t::iterator clique_it = cliques->begin();
     for (;clique_it!=cliques->end(); ++clique_it) {
     	Clique* clique = *clique_it;
-    	clique_collector.add(unique_ptr<Clique>(clique));
+        clique_collector.add(unique_ptr<Clique>(clique),this->appearanceMap);
     }
     delete cliques;
     cliques = nullptr;
@@ -121,7 +122,7 @@ void CLEVER::reorganize_storage() {
 	capacity = new_capacity;
 }
 
-void CLEVER::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_autoptr, int& edgecounter) {
+void CLEVER::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_autoptr, int& edgecounter, int& nonEdgeCounter, int numGCAllowedPos, int ct) {
     assert(alignment_autoptr.get() != 0);
 	assert(cliques!=0);
     assert(initialized);
@@ -152,16 +153,17 @@ void CLEVER::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_autoptr, i
 	// iterate through all alignments
 	for (; it!=end; ++it) {
 		const AlignmentRecord* alignment2 = alignments[it->second];
+
         //if(alignment->getName().find("normal14") != string::npos && alignment2->getName().find("normal14") != string::npos){
         //       int k = 0;
         //}
 		// cerr << "  comparing to " << alignments[it->second]->getID() << ", length " << it->first << ", read group: " << alignments[it->second]->getReadGroup();
-        bool set_edge = edge_calculator.edgeBetween(*alignment, *alignment2);
+        bool set_edge = edge_calculator.edgeBetween(*alignment, *alignment2,numGCAllowedPos,ct);
         //if(a1.getName().find("Clique") != string::npos && a2.getName().find("Clique") != string::npos){
         //FOR DEBUGGING
         //}
         if (set_edge && (second_edge_calculator != nullptr)) {
-			set_edge = second_edge_calculator->edgeBetween(*alignment, *alignment2);
+            set_edge = second_edge_calculator->edgeBetween(*alignment,*alignment2,numGCAllowedPos,ct);
 		}
 		if (set_edge) {
             edgecounter++;
@@ -170,10 +172,11 @@ void CLEVER::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_autoptr, i
 			// cerr << " --> EDGE";
 			if (lw != nullptr) {
                 lw->reportEdge(alignment->getID(), alignment2->getID());
-			}
-
-        converged = false;
-		}
+            }
+            converged = false;
+        }else{
+            nonEdgeCounter++;
+        }
 		// cerr << endl;
 	}
 
@@ -191,7 +194,7 @@ void CLEVER::addAlignment(std::unique_ptr<AlignmentRecord>& alignment_autoptr, i
 		Clique* clique = *clique_it;
 		if (clique->rightmostSegmentEnd() < alignment->getIntervalStart()) {
 			clique_it = cliques->erase(clique_it);
-			clique_collector.add(unique_ptr<Clique>(clique));
+            clique_collector.add(unique_ptr<Clique>(clique),this->appearanceMap);
 		} else {
 			// is there an intersection between nodes adjacent to the new
 			// alignment and the currently considered clique?

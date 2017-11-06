@@ -29,6 +29,7 @@ private:
     void printSet(std::ostream& os, alignment_set_t set);
     void printReads(std::ostream& os, alignment_set_t set);
     bool cliquesistent(const alignment_set_t& R, const alignment_set_t& P, const alignment_set_t& X);
+    std::map<string,int>* appearanceMap;
 public:
     BronKerbosch(const EdgeCalculator& edge_calculator, CliqueCollector& clique_collector, LogWriter* lw);
     virtual ~BronKerbosch();
@@ -38,8 +39,8 @@ public:
     	return *(alignments_[index]);
     }
 
-    void addAlignment(std::unique_ptr<AlignmentRecord>& ap, int &edgecounter);
-    void initialize();
+    void addAlignment(std::unique_ptr<AlignmentRecord>& ap, int &edgecounter, int& nonEdgeCounter,int numGCAllowedPos, int ct);
+    void initialize(std::map<string, int>* appearanceMap);
     void finish();
 };
 

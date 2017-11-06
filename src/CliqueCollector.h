@@ -40,7 +40,7 @@ public:
         delete superReads;
     };
 
-	void add(std::unique_ptr<Clique> clique) {
+    void add(std::unique_ptr<Clique> clique,std::map<std::string,int>* appearanceMap) {
         assert(clique.get() != nullptr);
 
 //        std::cerr << "Clique " << id << std::endl;
@@ -57,7 +57,7 @@ public:
         AlignmentRecord* al;
 
         if (alignments->size() > 1) {
-            al = new AlignmentRecord(alignments, this->id++);
+            al = new AlignmentRecord(alignments, this->id++,appearanceMap);
         } else {
             al = new AlignmentRecord(*(alignments->front()));
             this->id++;

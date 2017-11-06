@@ -34,9 +34,9 @@ public:
         
     }
 
-    virtual void addAlignment(std::unique_ptr<AlignmentRecord>& ap, int& edgecounter) = 0;
+    virtual void addAlignment(std::unique_ptr<AlignmentRecord>& ap, int& edgecounter, int& nonEdgeCounter,int numGCAllowedPos, int ct) = 0;
 
-    virtual void initialize() = 0;
+    virtual void initialize(std::map<string,int>* appearanceMap) = 0;
 
     virtual void finish() = 0;
 
